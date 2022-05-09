@@ -121,7 +121,7 @@ aCompiledBooleanExp = booleanSemantic aBooleanExpression
 
 -- test state with all variables set to 0
 nullState :: VariableName -> Int 
-nullState _ = 6
+nullState _ = 0
 
 ------------------------- Main -------------------------
 main :: IO()
