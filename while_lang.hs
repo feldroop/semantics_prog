@@ -47,15 +47,12 @@ data Statement =
 
 ------------------------- Number Semantics -------------------------
 numberSemantics :: Number -> Int
-numberSemantics (Positive bs) = numberSemanticsHelp bs 0
-numberSemantics (Negative bs) = -1 * numberSemanticsHelp bs 0
+numberSemantics (Positive bs) = numberSemanticsHelp bs
+numberSemantics (Negative bs) = -1 * numberSemanticsHelp bs
 
-numberSemanticsHelp :: Bits -> Int -> Int
-numberSemanticsHelp (Highest b) n = scale b n
-numberSemanticsHelp (Concat bs b) n = numberSemanticsHelp bs (n + 1) + scale b n
-
-scale :: Bit -> Int -> Int
-scale b n = bitValue b * (2 ^ n)
+numberSemanticsHelp :: Bits -> Int
+numberSemanticsHelp (Highest b) = bitValue b
+numberSemanticsHelp (Concat bs b) = 2 * numberSemanticsHelp bs + bitValue b
 
 bitValue :: Bit -> Int
 bitValue Zero = 0
