@@ -1,0 +1,5 @@
+*
+
+# only keep haskell files and .gitignore
+!*.hs
+!.gitignore
