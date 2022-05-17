@@ -1,5 +1,5 @@
 ------------------------- Some Variable set -------------------------
--- Could probably also be a String
+-- Could also be a String
 data VariableName = A | B | C | I | J | K | M | N | X | Y | Z
     deriving Show
 
@@ -129,5 +129,6 @@ main = do
     print (numberSemantics aNumber) -- should be -13
     print (numberSemantics anotherNumber) -- should be 5
 
+    -- "run/evaluate" compiled expressions
     print (aCompiledArithmeticExp nullState) -- should be (-13) + (5 * 5) - 0 = 12 
     print (aCompiledBooleanExp nullState) --should be (12 == 0) AND not false = False
