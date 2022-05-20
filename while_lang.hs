@@ -4,20 +4,21 @@ data VariableName = A | B | C | I | J | K | M | N | X | Y | Z
     deriving Show
 
 ------------------------- Number grammar -------------------------
-data Bit = 
-    Zero 
-    | One
-    deriving Show
+type Number = Int
+-- data Bit = 
+--     Zero 
+--     | One
+--     deriving Show
 
-data Bits = 
-    Highest Bit
-    | Concat Bits Bit
-    deriving Show
+-- data Bits = 
+--     Highest Bit
+--     | Concat Bits Bit
+--     deriving Show
 
-data Number =
-    Positive Bits
-    | Negative Bits
-    deriving Show
+-- data Number =
+--     Positive Bits
+--     | Negative Bits
+--     deriving Show
 
 ------------------------- While language grammar -------------------------
 data ArithmeticExp =
@@ -46,21 +47,21 @@ data Statement =
     deriving Show
 
 ------------------------- Number Semantics -------------------------
-numberSemantics :: Number -> Int
-numberSemantics (Positive bs) = numberSemanticsHelp bs
-numberSemantics (Negative bs) = -1 * numberSemanticsHelp bs
+-- numberSemantics :: Number -> Int
+-- numberSemantics (Positive bs) = numberSemanticsHelp bs
+-- numberSemantics (Negative bs) = -1 * numberSemanticsHelp bs
 
-numberSemanticsHelp :: Bits -> Int
-numberSemanticsHelp (Highest b) = bitValue b
-numberSemanticsHelp (Concat bs b) = 2 * numberSemanticsHelp bs + bitValue b
+-- numberSemanticsHelp :: Bits -> Int
+-- numberSemanticsHelp (Highest b) = bitValue b
+-- numberSemanticsHelp (Concat bs b) = 2 * numberSemanticsHelp bs + bitValue b
 
-bitValue :: Bit -> Int
-bitValue Zero = 0
-bitValue One = 1
+-- bitValue :: Bit -> Int
+-- bitValue Zero = 0
+-- bitValue One = 1
 
 ------------------------- While Semantics -------------------------
 arithmeticSemantic :: ArithmeticExp -> (VariableName -> Int) -> Int
-arithmeticSemantic (NumberLiteral n) state = numberSemantics n
+arithmeticSemantic (NumberLiteral n) state = n
 arithmeticSemantic (Variable var) state = state var
 arithmeticSemantic (Addition a1 a2) state = 
     arithmeticSemantic a1 state + arithmeticSemantic a2 state
@@ -82,22 +83,22 @@ booleanSemantic (And b1 b2) state =
 
 ------------------------- Test Examples -------------------------
 -- -1101_base2 = -13_base10
-aNumber :: Number
-aNumber = Negative (Concat (Concat (Concat (Highest One) One) Zero) One)
+-- aNumber :: Number
+-- aNumber = Negative (Concat (Concat (Concat (Highest One) One) Zero) One)
 
--- 101_base2 = 5_base10
-anotherNumber :: Number
-anotherNumber = Positive (Concat (Concat (Highest One) Zero) One)
+-- -- 101_base2 = 5_base10
+-- anotherNumber :: Number
+-- anotherNumber = Positive (Concat (Concat (Highest One) Zero) One)
 
 -- (-13) + (5 * 5) - X
 anArithmeticExpression :: ArithmeticExp
 anArithmeticExpression =
     Subtraction
         (Addition
-            (NumberLiteral aNumber)
+            (NumberLiteral (-13))
             (Multiplication 
-                (NumberLiteral anotherNumber)
-                (NumberLiteral anotherNumber)
+                (NumberLiteral 5)
+                (NumberLiteral 5)
             )
         )
         (Variable X)
@@ -126,8 +127,8 @@ nullState _ = 0
 ------------------------- Main -------------------------
 main :: IO()
 main = do
-    print (numberSemantics aNumber) -- should be -13
-    print (numberSemantics anotherNumber) -- should be 5
+    -- print (numberSemantics aNumber) -- should be -13
+    -- print (numberSemantics anotherNumber) -- should be 5
 
     -- "run/evaluate" compiled expressions
     print (aCompiledArithmeticExp nullState) -- should be (-13) + (5 * 5) - 0 = 12 
