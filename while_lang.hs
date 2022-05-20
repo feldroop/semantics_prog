@@ -62,7 +62,7 @@ anArithmeticExpression =
                 (NumberLiteral 5)
             )
         )
-        (Variable X)
+        (Variable "x")
 
 -- (anArithmeticExpression == Y) AND not false
 aBooleanExpression :: BooleanExp
@@ -70,7 +70,7 @@ aBooleanExpression =
     And 
         (EqualTest
             anArithmeticExpression
-            (Variable Y)
+            (Variable "y")
         )
         (Negation FalseLiteral)
 
