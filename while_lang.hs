@@ -1,7 +1,7 @@
 ------------------------- Basics -------------------------
 type VariableName = String
 type Number = Int
-
+type State = VariableName -> Int
 ------------------------- While language grammar -------------------------
 data ArithmeticExp =
     NumberLiteral Number
@@ -29,7 +29,7 @@ data Statement =
     deriving Show
 
 ------------------------- While Semantics -------------------------
-arithmeticSemantic :: ArithmeticExp -> (VariableName -> Int) -> Int
+arithmeticSemantic :: ArithmeticExp -> State -> Int
 arithmeticSemantic (NumberLiteral n) state = n
 arithmeticSemantic (Variable var) state = state var
 arithmeticSemantic (Addition a1 a2) state = 
@@ -39,7 +39,7 @@ arithmeticSemantic (Multiplication a1 a2) state =
 arithmeticSemantic (Subtraction a1 a2) state = 
     arithmeticSemantic a1 state - arithmeticSemantic a2 state
 
-booleanSemantic :: BooleanExp -> (VariableName -> Int) -> Bool
+booleanSemantic :: BooleanExp -> State -> Bool
 booleanSemantic TrueLiteral state = True
 booleanSemantic FalseLiteral state = False
 booleanSemantic (EqualTest a1 a2) state = 
@@ -75,14 +75,14 @@ aBooleanExpression =
         (Negation FalseLiteral)
 
 -- "compile" the example expressions
-aCompiledArithmeticExp :: (VariableName -> Int ) -> Int
+aCompiledArithmeticExp :: State -> Int
 aCompiledArithmeticExp = arithmeticSemantic anArithmeticExpression
 
-aCompiledBooleanExp :: (VariableName -> Int ) -> Bool
+aCompiledBooleanExp :: State -> Bool
 aCompiledBooleanExp = booleanSemantic aBooleanExpression
 
 -- test state with all variables set to 0
-nullState :: VariableName -> Int 
+nullState :: State
 nullState _ = 0
 
 ------------------------- Main -------------------------
