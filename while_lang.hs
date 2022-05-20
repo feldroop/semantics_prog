@@ -1,9 +1,5 @@
-------------------------- Some Variable set -------------------------
--- Could also be a String
-data VariableName = A | B | C | I | J | K | M | N | X | Y | Z
-    deriving Show
-
-------------------------- Number grammar -------------------------
+------------------------- Basics -------------------------
+type VariableName = String
 type Number = Int
 
 ------------------------- While language grammar -------------------------
