@@ -51,28 +51,22 @@ booleanSemantic (And b1 b2) state =
     booleanSemantic b1 state && booleanSemantic b2 state
 
 ------------------------- Test Examples -------------------------
--- (-13) + (5 * 5) - X
+-- (-13) + (5 * 8) - x
 anArithmeticExpression :: ArithmeticExp
 anArithmeticExpression =
     Subtraction
         (Addition
             (NumberLiteral (-13))
-            (Multiplication 
-                (NumberLiteral 5)
-                (NumberLiteral 5)
-            )
+            (Multiplication (NumberLiteral 5) (NumberLiteral 8))
         )
         (Variable "x")
 
--- (anArithmeticExpression == Y) AND not false
+-- (y + 4) <= (9 - y)
 aBooleanExpression :: BooleanExp
 aBooleanExpression = 
-    And 
-        (EqualTest
-            anArithmeticExpression
-            (Variable "y")
-        )
-        (Negation FalseLiteral)
+    SmallerOrEqualTest 
+        (Addition (Variable "y") (NumberLiteral 4))
+        (Subtraction (NumberLiteral 9) (Variable "y"))
 
 -- "compile" the example expressions
 aCompiledArithmeticExp :: State -> Int
@@ -81,13 +75,13 @@ aCompiledArithmeticExp = arithmeticSemantic anArithmeticExpression
 aCompiledBooleanExp :: State -> Bool
 aCompiledBooleanExp = booleanSemantic aBooleanExpression
 
--- test state with all variables set to 0
-nullState :: State
-nullState _ = 0
+-- test state with all variables set to 1
+oneState :: State
+oneState _ = 1
 
 ------------------------- Main -------------------------
 main :: IO()
 main = do
     -- "run/evaluate" compiled expressions
-    print (aCompiledArithmeticExp nullState) -- should be (-13) + (5 * 5) - 0 = 12 
-    print (aCompiledBooleanExp nullState) --should be (12 == 0) AND not false = False
+    print (aCompiledArithmeticExp oneState) -- should be (-13) + (5 * 8) - 1 = 26 
+    print (aCompiledBooleanExp oneState) --should be 5 <= 8 = True
