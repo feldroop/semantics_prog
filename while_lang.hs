@@ -95,12 +95,33 @@ b = SmallerOrEqualTest
     (Addition (Variable "y") (NumberLiteral 4))
     (Subtraction (NumberLiteral 9) (Variable "y"))
 
--- "compile" the example expressions
-aCompiled :: State -> Int
-aCompiled = arithmeticSemantic a
+-- substitution examples
+aSubstituted :: ArithmeticExp
+aSubstituted = substitutionArithmetic a "x" (NumberLiteral 25)
 
-bCompiled :: State -> Bool
-bCompiled = booleanSemantic b
+-- (-13) + (5 * 8) - 25
+aExpected :: ArithmeticExp
+aExpected = Subtraction
+    (Addition
+        (NumberLiteral (-13))
+        (Multiplication (NumberLiteral 5) (NumberLiteral 8))
+    )
+    (NumberLiteral 25)
+
+bSubstituted :: BooleanExp
+bSubstituted = substitutionBoolean b "y" (Multiplication (NumberLiteral 3) (Variable "x"))
+
+-- ((3 * x) + 4) <= (9 - (3 * x))
+bExpected :: BooleanExp
+bExpected = SmallerOrEqualTest 
+    (Addition 
+        (Multiplication (NumberLiteral 3) (Variable "x"))
+        (NumberLiteral 4)
+    )
+    (Subtraction 
+        (NumberLiteral 9)
+        (Multiplication (NumberLiteral 3) (Variable "x"))
+    )
 
 -- test state with all variables set to 1
 oneState :: State
@@ -110,5 +131,22 @@ oneState _ = 1
 main :: IO()
 main = do
     -- "run/evaluate" compiled expressions
-    print (aCompiled oneState) -- should be (-13) + (5 * 8) - 1 = 26 
-    print (bCompiled oneState) --should be 5 <= 8 = True
+    print (arithmeticSemantic a oneState) -- should be (-13) + (5 * 8) - 1 = 26 
+    print (booleanSemantic b oneState) --should be 5 <= 8 = True
+
+    -- test substitution operator
+    print (arithmeticSemantic aSubstituted oneState) -- (-13) + (5 * 8) - 25 = 2
+    print (aSubstituted == aExpected) -- should be True
+    print (booleanSemantic bSubstituted oneState) -- 7 <= 6 = False
+    print (bSubstituted == bExpected) -- should be True
+
+    -- test lemma from exercise 2 (should both be True)
+    print (
+        arithmeticSemantic aSubstituted oneState
+        == arithmeticSemantic a (substitutionState oneState "x" 25)
+        )
+    print (
+        booleanSemantic bSubstituted oneState
+        == booleanSemantic b (substitutionState oneState "y" 3)
+        )       
+
