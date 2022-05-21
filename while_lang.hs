@@ -9,7 +9,7 @@ data ArithmeticExp =
     | Addition ArithmeticExp ArithmeticExp
     | Multiplication ArithmeticExp ArithmeticExp
     | Subtraction ArithmeticExp ArithmeticExp
-    deriving Show
+    deriving (Show, Eq)
 
 data BooleanExp =
     TrueLiteral
@@ -18,7 +18,7 @@ data BooleanExp =
     | SmallerOrEqualTest ArithmeticExp ArithmeticExp
     | Negation BooleanExp
     | And BooleanExp BooleanExp
-    deriving Show
+    deriving (Show, Eq)
 
 data Statement =
     Assignment VariableName ArithmeticExp
@@ -26,7 +26,7 @@ data Statement =
     | Sequence Statement Statement
     | IfThenElse BooleanExp Statement Statement
     | WhileDo BooleanExp Statement
-    deriving Show
+    deriving (Show, Eq)
 
 ------------------------- While Semantics -------------------------
 arithmeticSemantic :: ArithmeticExp -> State -> Int
