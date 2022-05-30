@@ -137,6 +137,23 @@ bExpected = SmallerOrEqualTest
         (Multiplication (NumberLiteral 3) (Variable "x"))
     )
 
+factorialExample :: Statement
+factorialExample =
+    Sequence
+        (Assignment "y" $ NumberLiteral 1)
+        (
+            WhileDo (Negation $ EqualTest (Variable "x") (NumberLiteral 1))
+            (
+                Sequence
+                    (Assignment "y" $ Multiplication (Variable "x") (Variable "y"))
+                    (Assignment "x" $ Subtraction (Variable "x") (NumberLiteral 1))
+            )
+        )
+
+factorialExampleState :: State
+factorialExampleState "x" = 6
+factorialExampleState _ = 1
+
 -- test state with all variables set to 1
 oneState :: State
 oneState _ = 1
@@ -163,4 +180,6 @@ main = do
         booleanSemantic bSubstituted oneState
         == booleanSemantic b (substitutionState oneState "y" 3)
         )
+    -- test the factorial statement evaluation (as "x" = 6, this should equal fac(6)=720)
+    print(statementSemantic factorialExample factorialExampleState "y" == 720)
 
