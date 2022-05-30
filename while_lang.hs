@@ -32,22 +32,22 @@ data Statement =
 arithmeticSemantic :: ArithmeticExp -> State -> Int
 arithmeticSemantic (NumberLiteral n) state = n
 arithmeticSemantic (Variable var) state = state var
-arithmeticSemantic (Addition a1 a2) state = 
+arithmeticSemantic (Addition a1 a2) state =
     arithmeticSemantic a1 state + arithmeticSemantic a2 state
-arithmeticSemantic (Multiplication a1 a2) state = 
+arithmeticSemantic (Multiplication a1 a2) state =
     arithmeticSemantic a1 state * arithmeticSemantic a2 state
-arithmeticSemantic (Subtraction a1 a2) state = 
+arithmeticSemantic (Subtraction a1 a2) state =
     arithmeticSemantic a1 state - arithmeticSemantic a2 state
 
 booleanSemantic :: BooleanExp -> State -> Bool
 booleanSemantic TrueLiteral state = True
 booleanSemantic FalseLiteral state = False
-booleanSemantic (EqualTest a1 a2) state = 
+booleanSemantic (EqualTest a1 a2) state =
     arithmeticSemantic a1 state == arithmeticSemantic a2 state
-booleanSemantic (SmallerOrEqualTest a1 a2) state = 
+booleanSemantic (SmallerOrEqualTest a1 a2) state =
     arithmeticSemantic a1 state <= arithmeticSemantic a2 state
 booleanSemantic (Negation b) state = not (booleanSemantic b state)
-booleanSemantic (And b1 b2) state = 
+booleanSemantic (And b1 b2) state =
     booleanSemantic b1 state && booleanSemantic b2 state
 
 ------------------------- Substitution Operators -------------------------
@@ -56,27 +56,27 @@ substitutionArithmetic (NumberLiteral n) var a_0 = NumberLiteral n
 substitutionArithmetic (Variable existing_var) var a_0
     | existing_var == var = a_0
     | otherwise = Variable existing_var
-substitutionArithmetic (Addition a_1 a_2) var a_0 = 
+substitutionArithmetic (Addition a_1 a_2) var a_0 =
     Addition (substitutionArithmetic a_1 var a_0) (substitutionArithmetic a_2 var a_0)
-substitutionArithmetic (Multiplication a_1 a_2) var a_0 = 
+substitutionArithmetic (Multiplication a_1 a_2) var a_0 =
     Multiplication (substitutionArithmetic a_1 var a_0) (substitutionArithmetic a_2 var a_0)
-substitutionArithmetic (Subtraction a_1 a_2) var a_0 = 
+substitutionArithmetic (Subtraction a_1 a_2) var a_0 =
     Subtraction (substitutionArithmetic a_1 var a_0) (substitutionArithmetic a_2 var a_0)
 
 substitutionBoolean :: BooleanExp -> VariableName -> ArithmeticExp -> BooleanExp
 substitutionBoolean TrueLiteral var a_0 = TrueLiteral
 substitutionBoolean FalseLiteral var a_0 = FalseLiteral
-substitutionBoolean (EqualTest a_1 a_2) var a_0 = 
+substitutionBoolean (EqualTest a_1 a_2) var a_0 =
     EqualTest (substitutionArithmetic a_1 var a_0) (substitutionArithmetic a_2 var a_0)
-substitutionBoolean (SmallerOrEqualTest a_1 a_2) var a_0 = 
+substitutionBoolean (SmallerOrEqualTest a_1 a_2) var a_0 =
     SmallerOrEqualTest (substitutionArithmetic a_1 var a_0) (substitutionArithmetic a_2 var a_0)
 substitutionBoolean (Negation b_1) var a_0 = Negation (substitutionBoolean b_1 var a_0)
-substitutionBoolean (And b_1 b_2) var a_0 = 
+substitutionBoolean (And b_1 b_2) var a_0 =
     And (substitutionBoolean b_1 var a_0) (substitutionBoolean b_2 var a_0)
 
 substitutionState :: State -> VariableName -> Int -> State
 substitutionState state var n param_var
-    | var == param_var = n 
+    | var == param_var = n
     | otherwise = state param_var
 
 ------------------------- Test Examples -------------------------
@@ -91,7 +91,7 @@ a = Subtraction
 
 -- (y + 4) <= (9 - y)
 b :: BooleanExp
-b = SmallerOrEqualTest 
+b = SmallerOrEqualTest
     (Addition (Variable "y") (NumberLiteral 4))
     (Subtraction (NumberLiteral 9) (Variable "y"))
 
@@ -113,12 +113,12 @@ bSubstituted = substitutionBoolean b "y" (Multiplication (NumberLiteral 3) (Vari
 
 -- ((3 * x) + 4) <= (9 - (3 * x))
 bExpected :: BooleanExp
-bExpected = SmallerOrEqualTest 
-    (Addition 
+bExpected = SmallerOrEqualTest
+    (Addition
         (Multiplication (NumberLiteral 3) (Variable "x"))
         (NumberLiteral 4)
     )
-    (Subtraction 
+    (Subtraction
         (NumberLiteral 9)
         (Multiplication (NumberLiteral 3) (Variable "x"))
     )
@@ -131,7 +131,7 @@ oneState _ = 1
 main :: IO()
 main = do
     -- "run/evaluate" compiled expressions
-    print (arithmeticSemantic a oneState) -- should be (-13) + (5 * 8) - 1 = 26 
+    print (arithmeticSemantic a oneState) -- should be (-13) + (5 * 8) - 1 = 26
     print (booleanSemantic b oneState) --should be 5 <= 8 = True
 
     -- test substitution operator
@@ -148,5 +148,5 @@ main = do
     print (
         booleanSemantic bSubstituted oneState
         == booleanSemantic b (substitutionState oneState "y" 3)
-        )       
+        )
 
