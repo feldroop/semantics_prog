@@ -50,6 +50,20 @@ booleanSemantic (Negation b) state = not (booleanSemantic b state)
 booleanSemantic (And b1 b2) state =
     booleanSemantic b1 state && booleanSemantic b2 state
 
+statementSemantic :: Statement -> State -> State
+-- param_var is the result(Variable -> Int)'s input (Variable)
+statementSemantic Skip s param_var = s param_var
+statementSemantic stm@(Assignment var a) s param_var
+    | var == param_var = arithmeticSemantic a s
+    | otherwise = s param_var
+statementSemantic (Sequence stm1 stm2) s param_var = statementSemantic stm2 (statementSemantic stm1 s) param_var
+statementSemantic (IfThenElse b stm1 stm2) s param_var
+    | booleanSemantic b s = statementSemantic stm1 s param_var
+    | otherwise = statementSemantic stm2 s param_var
+statementSemantic while@(WhileDo b stm) s param_var
+    | booleanSemantic b s = statementSemantic while (statementSemantic stm s) param_var
+    | otherwise = statementSemantic Skip s param_var
+
 ------------------------- Substitution Operators -------------------------
 substitutionArithmetic :: ArithmeticExp -> VariableName -> ArithmeticExp -> ArithmeticExp
 substitutionArithmetic (NumberLiteral n) var a_0 = NumberLiteral n
