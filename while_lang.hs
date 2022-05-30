@@ -1,7 +1,7 @@
 ------------------------- Basics -------------------------
 type VariableName = String
-type Number = Int
-type State = VariableName -> Int
+type Number = Integer
+type State = VariableName -> Number
 ------------------------- While language grammar -------------------------
 data ArithmeticExp =
     NumberLiteral Number
@@ -29,7 +29,7 @@ data Statement =
     deriving (Show, Eq)
 
 ------------------------- While Semantics -------------------------
-arithmeticSemantic :: ArithmeticExp -> State -> Int
+arithmeticSemantic :: ArithmeticExp -> State -> Number
 arithmeticSemantic (NumberLiteral n) state = n
 arithmeticSemantic (Variable var) state = state var
 arithmeticSemantic (Addition a1 a2) state =
@@ -88,7 +88,7 @@ substitutionBoolean (Negation b_1) var a_0 = Negation (substitutionBoolean b_1 v
 substitutionBoolean (And b_1 b_2) var a_0 =
     And (substitutionBoolean b_1 var a_0) (substitutionBoolean b_2 var a_0)
 
-substitutionState :: State -> VariableName -> Int -> State
+substitutionState :: State -> VariableName -> Number -> State
 substitutionState state var n param_var
     | var == param_var = n
     | otherwise = state param_var
