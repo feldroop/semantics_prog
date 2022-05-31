@@ -154,9 +154,37 @@ factorialExampleState :: State
 factorialExampleState "x" = 6
 factorialExampleState _ = 1
 
+isEven :: Statement
+isEven =
+    Sequence
+    (
+        Assignment "y" $ NumberLiteral 0
+    )
+    (
+        Sequence
+        (
+            WhileDo (SmallerOrEqualTest (Multiplication (Variable "y") (NumberLiteral 2)) (Variable "x"))
+            (
+                Assignment "y" (Addition (Variable "y") $ NumberLiteral 1)
+            )
+        )
+        (
+            IfThenElse (EqualTest (Variable "x") (Multiplication (Subtraction (Variable "y") (NumberLiteral 1)) $ NumberLiteral 2))
+            (Assignment "y" $ NumberLiteral 1)
+            (Assignment "y" $ NumberLiteral 0)
+        )
+    )
+
 -- test state with all variables set to 1
 oneState :: State
 oneState _ = 1
+
+isEqual :: Statement
+isEqual =
+    IfThenElse (EqualTest (Variable "x") (Variable "y"))
+    (Assignment "z" $ NumberLiteral 1)
+    (Assignment "z" $ NumberLiteral 0)
+
 
 ------------------------- Main -------------------------
 main :: IO()
