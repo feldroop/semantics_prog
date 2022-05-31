@@ -137,6 +137,7 @@ bExpected = SmallerOrEqualTest
         (Multiplication (NumberLiteral 3) (Variable "x"))
     )
 
+-- y := 0; while (not x = 1) do (y := x * y; x := x - 1);
 factorialExample :: Statement
 factorialExample =
     Sequence
@@ -154,6 +155,8 @@ factorialExampleState :: State
 factorialExampleState "x" = 6
 factorialExampleState _ = 1
 
+-- y := 0; while y * 2 <= x do if y := y+1; if x = y * 2 then y:=1 else y:=0;
+-- returns state with y=1 if x is even, else y=0
 isEven :: Statement
 isEven =
     Sequence
@@ -179,6 +182,7 @@ isEven =
 oneState :: State
 oneState _ = 1
 
+-- returns state with z = x == y
 isEqual :: Statement
 isEqual =
     IfThenElse (EqualTest (Variable "x") (Variable "y"))
