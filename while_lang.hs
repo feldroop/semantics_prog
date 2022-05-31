@@ -151,10 +151,6 @@ factorialExample =
             )
         )
 
-factorialExampleState :: State
-factorialExampleState "x" = 6
-factorialExampleState _ = 1
-
 -- y := 0; while y * 2 <= x do if y := y+1; if x = y * 2 then y:=1 else y:=0;
 -- returns state with y=1 if x is even, else y=0
 isEven :: Statement
@@ -214,4 +210,10 @@ main = do
         )
     -- test the factorial statement evaluation (as "x" = 6, this should equal fac(6)=720)
     print(statementSemantic factorialExample factorialExampleState "y" == 720)
+
+    --                      STATEMENT        INITIAL STATE            QUERY VARIABLE    TEST
+    print(statementSemantic factorialExample (\"x" -> 6)                          "y" == 720)
+    print(statementSemantic isEven           (\"x" -> 9)                          "y" == 0)
+    print(statementSemantic isEven           (\"x" -> 6)                          "y" == 1)
+    print(statementSemantic isEqual          (\v -> case v of {"x" -> 6; _ -> 7}) "z" == 0)
 
