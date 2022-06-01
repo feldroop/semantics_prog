@@ -209,8 +209,6 @@ main = do
         == booleanSemantic b (substitutionState oneState "y" 3)
         )
     -- test the factorial statement evaluation (as "x" = 6, this should equal fac(6)=720)
-    print(statementSemantic factorialExample factorialExampleState "y" == 720)
-
     --                      STATEMENT        INITIAL STATE            QUERY VARIABLE    TEST
     print(statementSemantic factorialExample (\"x" -> 6)                          "y" == 720)
     print(statementSemantic isEven           (\"x" -> 9)                          "y" == 0)
