@@ -20,12 +20,16 @@ data BooleanExp =
     | And BooleanExp BooleanExp
     deriving (Show, Eq)
 
+data DV = MultipleV VariableName ArithmeticExp DV | EmptyDv
+    deriving (Show, Eq)
+
 data Statement =
     Assignment VariableName ArithmeticExp
     | Skip
     | Sequence Statement Statement
     | IfThenElse BooleanExp Statement Statement
     | WhileDo BooleanExp Statement
+    | Block DV Statement
     deriving (Show, Eq)
 
 ------------------------- While Semantics -------------------------
@@ -62,6 +66,13 @@ statementSemantic (IfThenElse b stm1 stm2) s
 statementSemantic while@(WhileDo b stm) s
     | booleanSemantic b s = statementSemantic while (statementSemantic stm s)
     | otherwise = statementSemantic Skip s
+statementSemantic (Block dv stm) state = blockSemantic dv stm state
+
+blockSemantic :: DV -> Statement -> State -> State
+blockSemantic EmptyDv stm state = statementSemantic stm state
+blockSemantic (MultipleV var aExp dv) stm state =
+    statementSemantic (Assignment var (NumberLiteral (state var)))
+    (blockSemantic dv stm (statementSemantic (Assignment var aExp) state))
 
 ------------------------- Substitution Operators -------------------------
 substitutionArithmetic :: ArithmeticExp -> VariableName -> ArithmeticExp -> ArithmeticExp
