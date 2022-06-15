@@ -195,6 +195,17 @@ isEqual =
     (Assignment "z" $ NumberLiteral 1)
     (Assignment "z" $ NumberLiteral 0)
 
+blockTest :: Statement
+blockTest =
+    Sequence
+    (Assignment "x" $ NumberLiteral 2)
+    (
+        Block (MultipleV "x" (NumberLiteral 4) EmptyDv)
+        (
+            Assignment "y" $ Multiplication (Variable "x") $ NumberLiteral 3
+        )
+    )
+
 
 ------------------------- Main -------------------------
 main :: IO()
@@ -224,4 +235,9 @@ main = do
     print(statementSemantic isEven           (\"x" -> 9)                          "y" == 0)
     print(statementSemantic isEven           (\"x" -> 6)                          "y" == 1)
     print(statementSemantic isEqual          (\v -> case v of {"x" -> 6; _ -> 7}) "z" == 0)
+
+    print "Testing block semantics"
+    let blockF = statementSemantic blockTest (\v -> case v of {"x" -> 2; _ -> 0})
+    print $ blockF "x" == 2
+    print $ blockF "y" == 12
 
