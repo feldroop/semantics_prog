@@ -1,4 +1,7 @@
 ------------------------- Basics -------------------------
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+-- {-# HLINT ignore "Use lambda-case" #-}
+{-# LANGUAGE LambdaCase #-}
 type VariableName = String
 type Number = Integer
 type State = VariableName -> Number
@@ -56,16 +59,14 @@ booleanSemantic (And b1 b2) state =
 
 statementSemantic :: Statement -> State -> State
 statementSemantic Skip s = s
-statementSemantic stm@(Assignment var a) s = \v -> case () of
-                                            _ | v == var -> arithmeticSemantic a s
-                                              | otherwise -> s v
+statementSemantic (Assignment var a) s = substitutionState s var (arithmeticSemantic a s)
 statementSemantic (Sequence stm1 stm2) s = statementSemantic stm2 (statementSemantic stm1 s)
 statementSemantic (IfThenElse b stm1 stm2) s
     | booleanSemantic b s = statementSemantic stm1 s
     | otherwise = statementSemantic stm2 s
 statementSemantic while@(WhileDo b stm) s
     | booleanSemantic b s = statementSemantic while (statementSemantic stm s)
-    | otherwise = statementSemantic Skip s
+    | otherwise = s
 statementSemantic (Block dv stm) state = blockSemantic dv stm state
 
 blockSemantic :: DV -> Statement -> State -> State
@@ -133,7 +134,7 @@ aExpected = Subtraction
     (NumberLiteral 25)
 
 bSubstituted :: BooleanExp
-bSubstituted = substitutionBoolean b "y" (Multiplication (NumberLiteral 3) (Variable "x"))
+bSubstituted = substitutionBoolean b "y" $ Multiplication (NumberLiteral 3) (Variable "x")
 
 -- ((3 * x) + 4) <= (9 - (3 * x))
 bExpected :: BooleanExp
@@ -206,38 +207,34 @@ blockTest =
         )
     )
 
-
 ------------------------- Main -------------------------
 main :: IO()
 main = do
     -- "run/evaluate" compiled expressions
-    print (arithmeticSemantic a oneState) -- should be (-13) + (5 * 8) - 1 = 26
-    print (booleanSemantic b oneState) --should be 5 <= 8 = True
+    print $ arithmeticSemantic a oneState -- should be (-13) + (5 * 8) - 1 = 26
+    print $ booleanSemantic b oneState --should be 5 <= 8 = True
 
     -- test substitution operator
-    print (arithmeticSemantic aSubstituted oneState) -- (-13) + (5 * 8) - 25 = 2
-    print (aSubstituted == aExpected) -- should be True
-    print (booleanSemantic bSubstituted oneState) -- 7 <= 6 = False
-    print (bSubstituted == bExpected) -- should be True
+    print $ arithmeticSemantic aSubstituted oneState -- (-13) + (5 * 8) - 25 = 2
+    print $ aSubstituted == aExpected -- should be True
+    print $ booleanSemantic bSubstituted oneState -- 7 <= 6 = False
+    print $ bSubstituted == bExpected -- should be True
 
     -- test lemma from exercise 2 (should both be True)
-    print (
+    print $
         arithmeticSemantic aSubstituted oneState
         == arithmeticSemantic a (substitutionState oneState "x" 25)
-        )
-    print (
+    print $
         booleanSemantic bSubstituted oneState
         == booleanSemantic b (substitutionState oneState "y" 3)
-        )
     -- test the factorial statement evaluation (as "x" = 6, this should equal fac(6)=720)
-    --                      STATEMENT        INITIAL STATE            QUERY VARIABLE    TEST
-    print(statementSemantic factorialExample (\"x" -> 6)                          "y" == 720)
-    print(statementSemantic isEven           (\"x" -> 9)                          "y" == 0)
-    print(statementSemantic isEven           (\"x" -> 6)                          "y" == 1)
-    print(statementSemantic isEqual          (\v -> case v of {"x" -> 6; _ -> 7}) "z" == 0)
+    --                        STATEMENT        INITIAL STATE   QUERY VARIABLE    TEST
+    print $ statementSemantic factorialExample (\"x" -> 6)                "y" == 720
+    print $ statementSemantic isEven           (\"x" -> 9)                "y" == 0
+    print $ statementSemantic isEven           (\"x" -> 6)                "y" == 1
+    print $ statementSemantic isEqual          (\case {"x" -> 6; _ -> 7}) "z" == 0
 
     print "Testing block semantics"
-    let blockF = statementSemantic blockTest (\v -> case v of {"x" -> 2; _ -> 0})
+    let blockF = statementSemantic blockTest (\case {"x" -> 2; _ -> 0})
     print $ blockF "x" == 2
     print $ blockF "y" == 12
-
