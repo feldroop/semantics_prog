@@ -1,7 +1,10 @@
-------------------------- Basics -------------------------
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 -- {-# HLINT ignore "Use lambda-case" #-}
 {-# LANGUAGE LambdaCase #-}
+
+import Data.Function
+
+------------------------- Basics -------------------------
 type VariableName = String
 type Number = Integer
 type State = VariableName -> Number
@@ -67,16 +70,16 @@ statementSemantic (IfThenElse b stm1 stm2) s
 statementSemantic while@(WhileDo b stm) s
     | booleanSemantic b s = statementSemantic while (statementSemantic stm s)
     | otherwise = s
-statementSemantic (Block dv stm) s =
-    resetLocalVariables dv s
-    . statementSemantic stm
-    . setLocalVariables dv $ s
+statementSemantic (Block dv stm) s = s 
+    & setLocalVariables dv 
+    & statementSemantic stm
+    & resetLocalVariables dv s
 
 -- initialize the local state with the given assignments
 setLocalVariables :: DV -> State -> State
 setLocalVariables EmptyDv s = s
-setLocalVariables (MultipleV var aExp dv) s = setLocalVariables dv
-    $ substitutionState s var (arithmeticSemantic aExp s)
+setLocalVariables (MultipleV var aExp dv) s = 
+    setLocalVariables dv $ substitutionState s var (arithmeticSemantic aExp s)
 
 -- set all the variables that occur in DV back to oldState
 resetLocalVariables :: DV -> State -> State -> State
