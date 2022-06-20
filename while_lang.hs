@@ -67,13 +67,22 @@ statementSemantic (IfThenElse b stm1 stm2) s
 statementSemantic while@(WhileDo b stm) s
     | booleanSemantic b s = statementSemantic while (statementSemantic stm s)
     | otherwise = s
-statementSemantic (Block dv stm) state = blockSemantic dv stm state
+statementSemantic (Block dv stm) s =
+    resetLocalVariables dv s
+    . statementSemantic stm
+    . setLocalVariables dv $ s
 
-blockSemantic :: DV -> Statement -> State -> State
-blockSemantic EmptyDv stm state = statementSemantic stm state
-blockSemantic (MultipleV var aExp dv) stm state =
-    statementSemantic (Assignment var (NumberLiteral (state var)))
-    (blockSemantic dv stm (statementSemantic (Assignment var aExp) state))
+-- initialize the local state with the given assignments
+setLocalVariables :: DV -> State -> State
+setLocalVariables EmptyDv s = s
+setLocalVariables (MultipleV var aExp dv) s = setLocalVariables dv
+    $ substitutionState s var (arithmeticSemantic aExp s)
+
+-- set all the variables that occur in DV back to oldState
+resetLocalVariables :: DV -> State -> State -> State
+resetLocalVariables EmptyDv oldState resetState = resetState
+resetLocalVariables (MultipleV var aExp dv) oldState resetState = 
+    resetLocalVariables dv oldState $ substitutionState resetState var (oldState var)
 
 ------------------------- Substitution Operators -------------------------
 substitutionArithmetic :: ArithmeticExp -> VariableName -> ArithmeticExp -> ArithmeticExp
@@ -210,11 +219,11 @@ blockTest =
 ------------------------- Main -------------------------
 main :: IO()
 main = do
-    -- "run/evaluate" compiled expressions
+    print "Test literal semantics"
     print $ arithmeticSemantic a oneState -- should be (-13) + (5 * 8) - 1 = 26
     print $ booleanSemantic b oneState --should be 5 <= 8 = True
 
-    -- test substitution operator
+    print "Test substitutions"
     print $ arithmeticSemantic aSubstituted oneState -- (-13) + (5 * 8) - 25 = 2
     print $ aSubstituted == aExpected -- should be True
     print $ booleanSemantic bSubstituted oneState -- 7 <= 6 = False
@@ -227,6 +236,8 @@ main = do
     print $
         booleanSemantic bSubstituted oneState
         == booleanSemantic b (substitutionState oneState "y" 3)
+
+    print "Test statement semantics"
     -- test the factorial statement evaluation (as "x" = 6, this should equal fac(6)=720)
     --                        STATEMENT        INITIAL STATE   QUERY VARIABLE    TEST
     print $ statementSemantic factorialExample (\"x" -> 6)                "y" == 720
