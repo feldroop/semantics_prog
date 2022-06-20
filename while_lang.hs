@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
--- {-# HLINT ignore "Use lambda-case" #-}
 {-# LANGUAGE LambdaCase #-}
 
+-- for the & operator (a.k.a. reverse application operator)
 import Data.Function
 
 ------------------------- Basics -------------------------
