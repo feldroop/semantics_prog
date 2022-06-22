@@ -70,21 +70,21 @@ statementSemantic (IfThenElse b stm1 stm2) s
 statementSemantic while@(WhileDo b stm) s
     | booleanSemantic b s = statementSemantic while (statementSemantic stm s)
     | otherwise = s
-statementSemantic (Block dv stm) s = s 
-    & setLocalVariables dv 
+statementSemantic (Block dv stm) s = s
+    & setLocalVariables dv
     & statementSemantic stm
     & resetLocalVariables dv s
 
 -- initialize the local state with the given assignments
 setLocalVariables :: DV -> State -> State
 setLocalVariables EmptyDv s = s
-setLocalVariables (MultipleV var aExp dv) s = 
+setLocalVariables (MultipleV var aExp dv) s =
     setLocalVariables dv $ substitutionState s var (arithmeticSemantic aExp s)
 
 -- set all the variables that occur in DV back to oldState
 resetLocalVariables :: DV -> State -> State -> State
 resetLocalVariables EmptyDv oldState resetState = resetState
-resetLocalVariables (MultipleV var aExp dv) oldState resetState = 
+resetLocalVariables (MultipleV var aExp dv) oldState resetState =
     resetLocalVariables dv oldState $ substitutionState resetState var (oldState var)
 
 ------------------------- Substitution Operators -------------------------
